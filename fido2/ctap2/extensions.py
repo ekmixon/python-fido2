@@ -118,9 +118,8 @@ class HmacSecretExtension(Ctap2Extension):
 
         decrypted = self.pin_protocol.decrypt(self.shared_secret, value)
         output1 = decrypted[: HmacSecretExtension.SALT_LEN]
-        output2 = decrypted[HmacSecretExtension.SALT_LEN :]
         outputs = {"output1": output1}
-        if output2:
+        if output2 := decrypted[HmacSecretExtension.SALT_LEN :]:
             outputs["output2"] = output2
 
         return {"hmacGetSecret": outputs}
@@ -174,8 +173,7 @@ class CredProtectExtension(Ctap2Extension):
     NAME = "credProtect"
 
     def process_create_input(self, inputs):
-        policy = inputs.get("credentialProtectionPolicy")
-        if policy:
+        if policy := inputs.get("credentialProtectionPolicy"):
             index = list(CredProtectExtension.POLICY).index(policy)
             enforce = inputs.get("enforceCredentialProtectionPolicy", False)
             if enforce and not self.is_supported() and index > 0:

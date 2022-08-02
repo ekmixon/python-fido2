@@ -109,17 +109,24 @@ def parse_report_descriptor(data):
         value = struct.unpack_from("<I", data[:size].ljust(4, b"\0"))[0]
         data = data[size:]
 
-        if report_count is not None and report_size is not None:
-            if key == INPUT_ITEM:
-                if max_input_size is None:
-                    max_input_size = report_count * report_size // 8
-                    report_count, report_size = None, None
-                    remaining -= 1
-            elif key == OUTPUT_ITEM:
-                if max_output_size is None:
-                    max_output_size = report_count * report_size // 8
-                    report_count, report_size = None, None
-                    remaining -= 1
+        if key == INPUT_ITEM:
+            if (
+                report_count is not None
+                and report_size is not None
+                and max_input_size is None
+            ):
+                max_input_size = report_count * report_size // 8
+                report_count, report_size = None, None
+                remaining -= 1
+        elif key == OUTPUT_ITEM:
+            if (
+                report_count is not None
+                and report_size is not None
+                and max_output_size is None
+            ):
+                max_output_size = report_count * report_size // 8
+                report_count, report_size = None, None
+                remaining -= 1
         if key == USAGE_PAGE:
             if not usage_page:
                 usage_page = value

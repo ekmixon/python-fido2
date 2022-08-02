@@ -114,9 +114,7 @@ class LargeBlobs(object):
             offset += self.max_fragment_length
 
         data, check = buf[:-16], buf[-16:]
-        if check != sha256(data)[:-16]:
-            return []
-        return cbor.decode(data)
+        return [] if check != sha256(data)[:-16] else cbor.decode(data)
 
     def write_blob_array(self, blob_array):
         """Writes the entire Large Blobs array.

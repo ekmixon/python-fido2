@@ -96,7 +96,7 @@ def encode(data):
     for k, v in _SERIALIZERS:
         if isinstance(data, k):
             return v(data)
-    raise ValueError("Unsupported value: {}".format(data))
+    raise ValueError(f"Unsupported value: {data}")
 
 
 def load_int(ai, data):
@@ -135,7 +135,7 @@ def load_text(ai, data):
 def load_array(ai, data):
     l, data = load_int(ai, data)
     values = []
-    for i in range(l):
+    for _ in range(l):
         val, data = decode_from(data)
         values.append(val)
     return values, data
@@ -144,7 +144,7 @@ def load_array(ai, data):
 def load_map(ai, data):
     l, data = load_int(ai, data)
     values = {}
-    for i in range(l):
+    for _ in range(l):
         k, data = decode_from(data)
         v, data = decode_from(data)
         values[k] = v

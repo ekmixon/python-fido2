@@ -71,10 +71,10 @@ class Acr122uPcscDevice(object):
 
 dev = next(CtapPcscDevice.list_devices())
 
-print("CONNECT: %s" % dev)
+print(f"CONNECT: {dev}")
 pcsc_device = Acr122uPcscDevice(dev)
 pcsc_device.led_control(False, True, 0)
-print("version: %s" % pcsc_device.reader_version())
+print(f"version: {pcsc_device.reader_version()}")
 pcsc_device.led_control(True, False, 0)
 time.sleep(1)
 pcsc_device.led_control(False, True, 3)

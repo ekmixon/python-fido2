@@ -153,4 +153,4 @@ class CtapError(Exception):
         except ValueError:
             code = CtapError.UNKNOWN_ERR(code)
         self.code = code
-        super(CtapError, self).__init__("CTAP error: %s" % code)
+        super(CtapError, self).__init__(f"CTAP error: {code}")

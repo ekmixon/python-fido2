@@ -48,11 +48,9 @@ except ImportError:
 
 
 def enumerate_devices():
-    for dev in CtapHidDevice.list_devices():
-        yield dev
+    yield from CtapHidDevice.list_devices()
     if CtapPcscDevice:
-        for dev in CtapPcscDevice.list_devices():
-            yield dev
+        yield from CtapPcscDevice.list_devices()
 
 
 # Locate a device

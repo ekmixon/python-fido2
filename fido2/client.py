@@ -111,7 +111,7 @@ class ClientError(Exception):
     def __repr__(self):
         r = "Client error: {0} - {0.name}".format(self.code)
         if self.cause:
-            r += " (cause: {})".format(self.cause)
+            r += f" (cause: {self.cause})"
         return r
 
 
@@ -363,7 +363,7 @@ class Fido2ClientAssertionSelection(AssertionSelection):
             for ext in self._extensions:
                 output = ext.process_get_output(assertion.auth_data)
                 if output is not None:
-                    extension_outputs.update(output)
+                    extension_outputs |= output
         except ValueError as e:
             raise ClientError.ERR.CONFIGURATION_UNSUPPORTED(e)
         return extension_outputs
@@ -471,8 +471,9 @@ class Fido2Client(_BaseClient):
                 if mc
                 else ClientPin.PERMISSION.GET_ASSERTION
             )
-            token = self._get_token(permission, rp_id, pin, event, on_keepalive)
-            if token:
+            if token := self._get_token(
+                permission, rp_id, pin, event, on_keepalive
+            ):
                 pin_protocol = self.client_pin.protocol.VERSION
                 pin_auth = self.client_pin.protocol.authenticate(
                     token, client_data.hash
@@ -544,9 +545,7 @@ class Fido2Client(_BaseClient):
         on_keepalive,
     ):
         if exclude_list:
-            # Filter out credential IDs which are too long
-            max_len = self.info.max_cred_id_length
-            if max_len:
+            if max_len := self.info.max_cred_id_length:
                 exclude_list = [e for e in exclude_list if len(e) <= max_len]
 
             # Reject the request if too many credentials remain.
@@ -572,14 +571,11 @@ class Fido2Client(_BaseClient):
             client_data, rp["id"], user_verification, pin, event, on_keepalive
         )
 
-        if not (rk or internal_uv):
-            options = None
-        else:
-            options = {}
-            if rk:
-                options["rk"] = True
-            if internal_uv:
-                options["uv"] = True
+        options = {} if (rk or internal_uv) else None
+        if rk:
+            options["rk"] = True
+        if internal_uv:
+            options["uv"] = True
 
         att_obj = self.ctap2.make_credential(
             client_data.hash,
@@ -601,7 +597,7 @@ class Fido2Client(_BaseClient):
             for ext in used_extensions:
                 output = ext.process_create_output(att_obj.auth_data)
                 if output is not None:
-                    extension_outputs.update(output)
+                    extension_outputs |= output
         except ValueError as e:
             raise ClientError.ERR.CONFIGURATION_UNSUPPORTED(e)
 
@@ -720,15 +716,9 @@ class Fido2Client(_BaseClient):
         pin_protocol, pin_auth, internal_uv = self._get_auth_params(
             client_data, rp_id, user_verification, pin, event, on_keepalive
         )
-        if internal_uv:
-            options = {"uv": True}
-        else:
-            options = None
-
+        options = {"uv": True} if internal_uv else None
         if allow_list:
-            # Filter out credential IDs which are too long
-            max_len = self.info.max_cred_id_length
-            if max_len:
+            if max_len := self.info.max_cred_id_length:
                 allow_list = [e for e in allow_list if len(e) <= max_len]
             if not allow_list:
                 raise CtapError(CtapError.ERR.NO_CREDENTIALS)

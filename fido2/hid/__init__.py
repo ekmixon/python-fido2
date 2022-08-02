@@ -121,7 +121,7 @@ class CtapHidDevice(CtapDevice):
         self._device_version = (v1, v2, v3)
 
     def __repr__(self):
-        return "CtapHidDevice(%s)" % self.descriptor.path
+        return f"CtapHidDevice({self.descriptor.path})"
 
     @property
     def version(self):

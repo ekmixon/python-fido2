@@ -48,7 +48,7 @@ def args(*params):
     :param params: Arguments, in order, to add to the command.
     :return: The input parameters as a dict.
     """
-    return dict((i, v) for i, v in enumerate(params, 1) if v is not None)
+    return {i: v for i, v in enumerate(params, 1) if v is not None}
 
 
 def hexstr(bs):
@@ -113,7 +113,7 @@ class Info(bytes):
     def __init__(self, _):
         super(Info, self).__init__()
 
-        data = dict((Info.KEY.get(k), v) for (k, v) in cbor.decode(self).items())
+        data = {Info.KEY.get(k): v for (k, v) in cbor.decode(self).items()}
         self.versions = data[Info.KEY.VERSIONS]
         self.extensions = data.get(Info.KEY.EXTENSIONS, [])
         self.aaguid = data[Info.KEY.AAGUID]
@@ -136,7 +136,7 @@ class Info(bytes):
         self.data = data
 
     def __repr__(self):
-        return "%s" % self.data
+        return f"{self.data}"
 
     def __str__(self):
         return self.__repr__()
@@ -197,9 +197,7 @@ class AttestedCredentialData(bytes):
             raise ValueError("Wrong length")
 
     def __repr__(self):
-        return (
-            "AttestedCredentialData(aaguid: %s, credential_id: %s, " "public_key: %s"
-        ) % (hexstr(self.aaguid), hexstr(self.credential_id), self.public_key)
+        return f"AttestedCredentialData(aaguid: {hexstr(self.aaguid)}, credential_id: {hexstr(self.credential_id)}, public_key: {self.public_key}"
 
     def __str__(self):
         return self.__repr__()
@@ -367,10 +365,10 @@ class AuthenticatorData(bytes):
             self.counter,
         )
         if self.credential_data:
-            r += ", credential_data: %s" % self.credential_data
+            r += f", credential_data: {self.credential_data}"
         if self.extensions:
-            r += ", extensions: %s" % self.extensions
-        return r + ")"
+            r += f", extensions: {self.extensions}"
+        return f"{r})"
 
     def __str__(self):
         return self.__repr__()
@@ -427,10 +425,11 @@ class AttestationObject(bytes):
     def __init__(self, _):
         super(AttestationObject, self).__init__()
 
-        data = dict(
-            (AttestationObject.KEY.for_key(k), v)
+        data = {
+            AttestationObject.KEY.for_key(k): v
             for (k, v) in cbor.decode(self).items()
-        )
+        }
+
         self.fmt = data[AttestationObject.KEY.FMT]
         self.auth_data = AuthenticatorData(data[AttestationObject.KEY.AUTH_DATA])
         data[AttestationObject.KEY.AUTH_DATA] = self.auth_data
@@ -513,7 +512,7 @@ class AttestationObject(bytes):
         :rtype: AttestationObject
         """
         return AttestationObject(
-            cbor.encode(dict((k.string_key, v) for k, v in self.data.items()))
+            cbor.encode({k.string_key: v for k, v in self.data.items()})
         )
 
 
@@ -542,9 +541,7 @@ class AssertionResponse(bytes):
     def __init__(self, _):
         super(AssertionResponse, self).__init__()
 
-        data = dict(
-            (AssertionResponse.KEY(k), v) for (k, v) in cbor.decode(self).items()
-        )
+        data = {AssertionResponse.KEY(k): v for (k, v) in cbor.decode(self).items()}
         self.credential = data.get(AssertionResponse.KEY.CREDENTIAL)
         self.auth_data = AuthenticatorData(data[AssertionResponse.KEY.AUTH_DATA])
         self.signature = data[AssertionResponse.KEY.SIGNATURE]
@@ -561,10 +558,10 @@ class AssertionResponse(bytes):
             hexstr(self.signature),
         )
         if self.user:
-            r += ", user: %s" % self.user
+            r += f", user: {self.user}"
         if self.number_of_credentials is not None:
             r += ", number_of_credentials: %d" % self.number_of_credentials
-        return r + ")"
+        return f"{r})"
 
     def __str__(self):
         return self.__repr__()
@@ -682,9 +679,12 @@ class Ctap2(object):
                 enc_h = b2a_hex(enc)
                 exp_h = b2a_hex(expected)
                 raise ValueError(
-                    "Non-canonical CBOR from Authenticator.\n"
-                    "Got: {}\n".format(enc_h) + "Expected: {}".format(exp_h)
+                    (
+                        f"Non-canonical CBOR from Authenticator.\nGot: {enc_h}\n"
+                        + f"Expected: {exp_h}"
+                    )
                 )
+
         return parse(enc)
 
     def get_info(self):

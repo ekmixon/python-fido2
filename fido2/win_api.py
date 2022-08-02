@@ -57,8 +57,8 @@ class BytesProperty(object):
     """
 
     def __init__(self, name):
-        self.cbName = "cb" + name
-        self.pbName = "pb" + name
+        self.cbName = f"cb{name}"
+        self.pbName = f"pb{name}"
 
     def __get__(self, instance, owner):
         return bytes(

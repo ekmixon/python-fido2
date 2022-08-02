@@ -67,10 +67,7 @@ class Config(object):
         self.pin_uv_token = pin_uv_token
 
     def _call(self, sub_cmd, params=None):
-        if params:
-            params = {k: v for k, v in params.items() if v is not None}
-        else:
-            params = None
+        params = {k: v for k, v in params.items() if v is not None} if params else None
         if self.pin_uv_protocol:
             msg = (
                 b"\xff" * 32

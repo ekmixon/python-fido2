@@ -373,10 +373,10 @@ class U2FFido2Server(Fido2Server):
 
     def __init__(self, app_id, rp, verify_u2f_origin=None, *args, **kwargs):
         super(U2FFido2Server, self).__init__(rp, *args, **kwargs)
-        if verify_u2f_origin:
-            kwargs["verify_origin"] = verify_u2f_origin
-        else:
-            kwargs["verify_origin"] = lambda o: verify_app_id(app_id, o)
+        kwargs["verify_origin"] = verify_u2f_origin or (
+            lambda o: verify_app_id(app_id, o)
+        )
+
         self._app_id = app_id
         self._app_id_server = Fido2Server(
             PublicKeyCredentialRpEntity(app_id, self.rp.name), *args, **kwargs

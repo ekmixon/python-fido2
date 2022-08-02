@@ -19,8 +19,7 @@ class Acr1252uPcscDevice(object):
             if len(res) > 0 and res.find(b"\xe1\x00\x00\x00") == 0:
                 reslen = res[4]
                 if reslen == len(res) - 5:
-                    strres = res[5 : 5 + reslen].decode("utf-8")
-                    return strres
+                    return res[5 : 5 + reslen].decode("utf-8")
         except Exception as e:
             print("Get version error:", e)
         return "n/a"
@@ -32,8 +31,7 @@ class Acr1252uPcscDevice(object):
             if len(res) > 0 and res.find(b"\xe1\x00\x00\x00") == 0:
                 reslen = res[4]
                 if reslen == len(res) - 5:
-                    strres = res[5 : 5 + reslen].decode("utf-8")
-                    return strres
+                    return res[5 : 5 + reslen].decode("utf-8")
         except Exception as e:
             print("Get serial number error:", e)
         return "n/a"
@@ -130,11 +128,11 @@ class Acr1252uPcscDevice(object):
 
 dev = next(CtapPcscDevice.list_devices())
 
-print("CONNECT: %s" % dev)
+print(f"CONNECT: {dev}")
 pcsc_device = Acr1252uPcscDevice(dev)
 if pcsc_device is not None:
-    print("version: %s" % pcsc_device.reader_version())
-    print("serial number: %s" % pcsc_device.reader_serial_number())
+    print(f"version: {pcsc_device.reader_version()}")
+    print(f"serial number: {pcsc_device.reader_serial_number()}")
     print("")
 
     result, settings = pcsc_device.set_polling_settings(0x8B)

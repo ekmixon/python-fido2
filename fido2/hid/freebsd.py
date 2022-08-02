@@ -88,14 +88,14 @@ def _read_descriptor(vid, pid, name, serial, path):
 
 
 def _enumerate():
-    for uhid in glob.glob(devdir + "uhid?*"):
+    for uhid in glob.glob(f"{devdir}uhid?*"):
 
         index = uhid[len(devdir) + len("uhid") :]
         if not index.isdigit():
             continue
 
-        pnpinfo = ("dev.uhid." + index + ".%pnpinfo").encode()
-        desc = ("dev.uhid." + index + ".%desc").encode()
+        pnpinfo = f"dev.uhid.{index}.%pnpinfo".encode()
+        desc = f"dev.uhid.{index}.%desc".encode()
 
         ovalue = ctypes.create_string_buffer(1024)
         olen = ctypes.c_size_t(ctypes.sizeof(ovalue))
@@ -104,10 +104,7 @@ def _enumerate():
         if retval != 0:
             continue
 
-        dev = {}
-        dev["name"] = uhid[len(devdir) :]
-        dev["path"] = uhid
-
+        dev = {"name": uhid[len(devdir) :], "path": uhid}
         value = ovalue.value[: olen.value].decode()
         m = vendor_re.search(value)
         dev["vendor_id"] = m.group(1) if m else None

@@ -40,7 +40,7 @@ if LooseVersion(__version__) < LooseVersion("20.2"):
 def get_version():
     with open("fido2/__init__.py", "r") as f:
         match = re.search(r"(?m)^__version__\s*=\s*['\"](.+)['\"]$", f.read())
-        return match.group(1)
+        return match[1]
 
 
 setup(

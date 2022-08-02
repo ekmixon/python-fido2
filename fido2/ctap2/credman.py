@@ -78,11 +78,10 @@ class CredentialManagement(object):
         if info.options.get("credMgmt"):
             return True
         # We also support the Prototype command
-        if "FIDO_2_1_PRE" in info.versions and info.options.get(
-            "credentialMgmtPreview"
-        ):
-            return True
-        return False
+        return bool(
+            "FIDO_2_1_PRE" in info.versions
+            and info.options.get("credentialMgmtPreview")
+        )
 
     def __init__(self, ctap, pin_uv_protocol, pin_uv_token):
         if not self.is_supported(ctap.info):

@@ -71,9 +71,7 @@ def verify_rp_id(rp_id, origin):
     host = url.hostname
     if host == rp_id:
         return True
-    if host.endswith("." + rp_id) and rp_id not in suffixes:
-        return True
-    return False
+    return bool(host.endswith(f".{rp_id}") and rp_id not in suffixes)
 
 
 def verify_app_id(app_id, origin):
@@ -86,6 +84,4 @@ def verify_app_id(app_id, origin):
     if isinstance(app_id, six.binary_type):
         app_id = app_id.decode()
     url = urlparse(app_id)
-    if url.scheme != "https":
-        return False
-    return verify_rp_id(url.hostname, origin)
+    return False if url.scheme != "https" else verify_rp_id(url.hostname, origin)

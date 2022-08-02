@@ -42,9 +42,7 @@ See the specification for a description and details on their usage.
 class _StringEnum(six.text_type, Enum):
     @classmethod
     def _wrap(cls, value):
-        if value is None:
-            return None
-        return cls(value)
+        return None if value is None else cls(value)
 
 
 @unique
@@ -96,7 +94,7 @@ class _DataObject(dict):
     """
 
     def __init__(self, **data):
-        keys = {k: _snake2camel(k) for k in data.keys()}
+        keys = {k: _snake2camel(k) for k in data}
         super(_DataObject, self).__init__(
             {keys[k]: v for k, v in data.items() if v is not None}
         )
@@ -106,7 +104,7 @@ class _DataObject(dict):
         if name in self._keys:
             return self.get(self._keys[name])
         raise AttributeError(
-            "'{}' object has no attribute '{}'".format(type(self).__name__, name)
+            f"'{type(self).__name__}' object has no attribute '{name}'"
         )
 
     def __setattr__(self, name, value):
@@ -114,7 +112,7 @@ class _DataObject(dict):
             self[self._keys[name]] = value
         else:
             raise AttributeError(
-                "'{}' object has no attribute '{}'".format(type(self).__name__, name)
+                f"'{type(self).__name__}' object has no attribute '{name}'"
             )
 
     def __repr__(self):

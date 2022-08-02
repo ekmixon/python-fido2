@@ -77,7 +77,7 @@ class CtapPcscDevice(CtapDevice):
                 raise ValueError("Unsupported device")
 
     def __repr__(self):
-        return "CtapPcscDevice(%s)" % self._name
+        return f"CtapPcscDevice({self._name})"
 
     @property
     def version(self):
@@ -146,7 +146,6 @@ class CtapPcscDevice(CtapDevice):
         if self.use_ext_apdu:
             header = struct.pack("!BBBBBH", cla, ins, p1, p2, 0x00, len(data))
             resp, sw1, sw2 = self.apdu_exchange(header + data)
-            return resp, sw1, sw2
         else:
             while len(data) > 250:
                 to_send, data = data[:250], data[250:]
@@ -162,7 +161,8 @@ class CtapPcscDevice(CtapDevice):
                 apdu = b"\x00\xc0\x00\x00" + struct.pack("!B", sw2)  # sw2 == le
                 lres, sw1, sw2 = self.apdu_exchange(apdu)
                 resp += lres
-            return resp, sw1, sw2
+
+        return resp, sw1, sw2
 
     def _call_apdu(self, apdu):
         if len(apdu) >= 7 and six.indexbytes(apdu, 4) == 0:

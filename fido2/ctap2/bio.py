@@ -59,11 +59,10 @@ class BioEnrollment(object):
         if "bioEnroll" in info.options:
             return True
         # We also support the Prototype command
-        if "FIDO_2_1_PRE" in info.versions and info.options.get(
-            "credentialMgmtPreview"
-        ):
-            return True
-        return False
+        return bool(
+            "FIDO_2_1_PRE" in info.versions
+            and info.options.get("credentialMgmtPreview")
+        )
 
     def __init__(self, ctap, modality):
         if not self.is_supported(ctap.info):
@@ -87,7 +86,7 @@ class BioEnrollment(object):
 class CaptureError(Exception):
     def __init__(self, code):
         self.code = code
-        super(CaptureError, self).__init__("Fingerprint capture error: %s" % code)
+        super(CaptureError, self).__init__(f"Fingerprint capture error: {code}")
 
 
 class FPEnrollmentContext(object):
@@ -126,9 +125,7 @@ class FPEnrollmentContext(object):
             )
         if status != FPBioEnrollment.FEEDBACK.FP_GOOD:
             raise CaptureError(status)
-        if self.remaining == 0:
-            return self.template_id
-        return None
+        return self.template_id if self.remaining == 0 else None
 
     def cancel(self):
         """Cancels ongoing enrollment."""

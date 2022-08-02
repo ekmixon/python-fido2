@@ -36,7 +36,6 @@ setupapi = windll.SetupAPI
 kernel32 = windll.Kernel32
 
 
-# Various structs that are used in the Windows APIs we call
 class GUID(ctypes.Structure):
     _fields_ = [
         ("Data1", ctypes.c_ulong),
@@ -56,7 +55,7 @@ if platform.architecture()[0] == "64bit":
 elif platform.architecture()[0] == "32bit":
     SETUPAPI_PACK = 1
 else:
-    raise OSError("Unknown architecture: %s" % platform.architecture()[0])
+    raise OSError(f"Unknown architecture: {platform.architecture()[0]}")
 
 
 class DeviceInterfaceData(ctypes.Structure):
@@ -231,21 +230,17 @@ class WinCtapHidConnection(CtapHidConnection):
 
 def get_vid_pid(device):
     attributes = HidAttributes()
-    result = hid.HidD_GetAttributes(device, ctypes.byref(attributes))
-    if not result:
+    if result := hid.HidD_GetAttributes(device, ctypes.byref(attributes)):
+        return attributes.VendorID, attributes.ProductID
+    else:
         raise ctypes.WinError()
-
-    return attributes.VendorID, attributes.ProductID
 
 
 def get_product_name(device):
     buf = ctypes.create_unicode_buffer(128)
 
     result = hid.HidD_GetProductString(device, buf, ctypes.c_ulong(ctypes.sizeof(buf)))
-    if not result:
-        return None
-
-    return buf.value
+    return buf.value if result else None
 
 
 def get_serial(device):
@@ -254,10 +249,7 @@ def get_serial(device):
     result = hid.HidD_GetSerialNumberString(
         device, buf, ctypes.c_ulong(ctypes.sizeof(buf))
     )
-    if not result:
-        return None
-
-    return buf.value
+    return buf.value if result else None
 
 
 def get_descriptor(path):

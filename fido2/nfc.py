@@ -76,7 +76,7 @@ class CtapNfcDevice(CtapDevice):
         return self._dev
 
     def __repr__(self):
-        return "CtapNfcDevice(%s)" % self._dev.reader.name
+        return f"CtapNfcDevice({self._dev.reader.name})"
 
     @property
     def version(self):

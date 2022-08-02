@@ -45,11 +45,9 @@ except ImportError:
 
 
 def enumerate_devices():
-    for dev in CtapHidDevice.list_devices():
-        yield dev
+    yield from CtapHidDevice.list_devices()
     if CtapPcscDevice:
-        for dev in CtapPcscDevice.list_devices():
-            yield dev
+        yield from CtapPcscDevice.list_devices()
 
 
 # Locate a device
@@ -118,7 +116,7 @@ if blob == blob_res:
     print("Authenticated, got correct blob:", blob.hex())
 else:
     print(
-        "Authenticated, got incorrect blob! (was %s, expected %s)"
-        % (blob_res.hex(), blob.hex())
+        f"Authenticated, got incorrect blob! (was {blob_res.hex()}, expected {blob.hex()})"
     )
+
     sys.exit(1)

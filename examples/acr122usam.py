@@ -98,7 +98,6 @@ class Acr122uSamPcscDevice(CtapPcscDevice):
     # chaining ISO 14443-4:2001
     # page 20. 7.5.2 Chaining
     def apdu_exchange(self, apdu, protocol=None):
-        all_response = b""
         alen = 0
         while True:
             vapdu = apdu[alen : alen + self.max_block_len]
@@ -123,15 +122,12 @@ class Acr122uSamPcscDevice(CtapPcscDevice):
             if not chaining:
                 break
 
-        if len(resp) > 3:
-            if resp[3] & 0x10 == 0:
-                return resp[4:-2], resp[-2], resp[-1]
-            else:
-                if resp[3] != 0xF2:
-                    all_response = resp[4:]
-        else:
+        if len(resp) <= 3:
             return b"", 0x90, 0x00
 
+        if resp[3] & 0x10 == 0:
+            return resp[4:-2], resp[-2], resp[-1]
+        all_response = resp[4:] if resp[3] != 0xF2 else b""
         while True:
             if len(resp) > 3 and resp[3] == 0xF2:
                 # WTX
@@ -284,10 +280,10 @@ class Acr122uSamPcscDevice(CtapPcscDevice):
 
 dev = next(Acr122uSamPcscDevice.list_devices())
 
-print("CONNECT: %s" % dev)
-print("version: %s" % dev.reader_version())
-print("atr: %s" % bytes(dev.get_atr()).hex())
-print("ats: %s" % dev.ats.hex())
+print(f"CONNECT: {dev}")
+print(f"version: {dev.reader_version()}")
+print(f"atr: {bytes(dev.get_atr()).hex()}")
+print(f"ats: {dev.ats.hex()}")
 
 # uncomment if you want to see parameters from card's selection
 # dev.get_ats(True)

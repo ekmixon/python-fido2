@@ -74,10 +74,10 @@ class CoseKey(dict):
         if alg == EdDSA.ALGORITHM and ed25519 is None:
             # EdDSA requires Cryptography >= 2.6.
             return UnsupportedKey
-        for cls in CoseKey.__subclasses__():
-            if cls.ALGORITHM == alg:
-                return cls
-        return UnsupportedKey
+        return next(
+            (cls for cls in CoseKey.__subclasses__() if cls.ALGORITHM == alg),
+            UnsupportedKey,
+        )
 
     @staticmethod
     def for_name(name):
@@ -86,26 +86,23 @@ class CoseKey(dict):
         :param alg: The COSE identifier of the algorithm.
         :return: A CoseKey.
         """
-        for cls in CoseKey.__subclasses__():
-            if cls.__name__ == name:
-                return cls
-        return UnsupportedKey
+        return next(
+            (cls for cls in CoseKey.__subclasses__() if cls.__name__ == name),
+            UnsupportedKey,
+        )
 
     @staticmethod
     def parse(cose):
         """Create a CoseKey from a dict"""
-        alg = cose.get(3)
-        if not alg:
+        if alg := cose.get(3):
+            return CoseKey.for_alg(alg)(cose)
+        else:
             raise ValueError("COSE alg identifier must be provided.")
-        return CoseKey.for_alg(alg)(cose)
 
     @staticmethod
     def supported_algorithms():
         """Get a list of all supported algorithm identifiers"""
-        if ed25519:
-            algs = (ES256, EdDSA, PS256, RS256)
-        else:
-            algs = (ES256, PS256, RS256)
+        algs = (ES256, EdDSA, PS256, RS256) if ed25519 else (ES256, PS256, RS256)
         return [cls.ALGORITHM for cls in algs]
 
 

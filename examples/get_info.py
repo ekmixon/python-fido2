@@ -42,23 +42,21 @@ except ImportError:
 
 
 def enumerate_devices():
-    for dev in CtapHidDevice.list_devices():
-        yield dev
+    yield from CtapHidDevice.list_devices()
     if CtapPcscDevice:
-        for dev in CtapPcscDevice.list_devices():
-            yield dev
+        yield from CtapPcscDevice.list_devices()
 
 
 for dev in enumerate_devices():
-    print("CONNECT: %s" % dev)
-    print("Product name: %s" % dev.product_name)
-    print("Serial number: %s" % dev.serial_number)
+    print(f"CONNECT: {dev}")
+    print(f"Product name: {dev.product_name}")
+    print(f"Serial number: {dev.serial_number}")
     print("CTAPHID protocol version: %d" % dev.version)
 
     if dev.capabilities & CAPABILITY.CBOR:
         ctap2 = CTAP2(dev)
         info = ctap2.get_info()
-        print("DEVICE INFO: %s" % info)
+        print(f"DEVICE INFO: {info}")
     else:
         print("Device does not support CBOR")
 

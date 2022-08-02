@@ -42,7 +42,7 @@ import os
 
 def _pad_pin(pin):
     if not isinstance(pin, six.string_types):
-        raise ValueError("PIN of wrong type, expecting %s" % six.string_types)
+        raise ValueError(f"PIN of wrong type, expecting {six.string_types}")
     if len(pin) < 4:
         raise ValueError("PIN must be >= 4 characters")
     pin = pin.encode("utf8").ljust(64, b"\0")
@@ -102,9 +102,10 @@ class PinProtocolV1(object):
         return hmac_sha256(key, message)[:16]
 
     def validate_token(self, token):
-        if len(token) not in (16, 32):
+        if len(token) in {16, 32}:
+            return token
+        else:
             raise ValueError("PIN/UV token must be 16 or 32 bytes")
-        return token
 
 
 class PinProtocolV2(PinProtocolV1):
